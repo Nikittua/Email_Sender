@@ -8,37 +8,39 @@ TEST_ADDRESS = os.environ.get('TEST_EMAIL')
 
 
 class EmailSender:
+    sender = EXAMPLE_ADDRESS
+    receiver = TEST_ADDRESS
+
     @staticmethod
-    def plain_text(sender, receiver, message):
+    def plain_text(message):
         msg = EmailMessage()
         msg['Subject'] = 'Test email using Python'
-        msg['From'] = sender
-        msg['To'] = receiver
+        msg['From'] = EmailSender.sender
+        msg['To'] = EmailSender.receiver
         msg.set_content(message)
 
         with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
-            smtp.login(sender, EXAMPLE_PASSWORD)
+            smtp.login(EmailSender.sender, EXAMPLE_PASSWORD)
 
             smtp.send_message(msg)
 
     @staticmethod
-    def pdf(sender, receiver, message):
+    def pdf(content, message):
         msg = EmailMessage()
         msg['Subject'] = 'OMG ITS PDF'
-        msg['From'] = sender
-        msg['To'] = receiver
-        msg.set_content('Проверка отправки pdf файла')
+        msg['From'] = EmailSender.sender
+        msg['To'] = EmailSender.receiver
+        msg.set_content(content)
 
         files = message
-        for file in files:
-            with open(file, 'rb') as f:
+        for pdf in files:
+            with open(pdf, 'rb') as f:
                 file_data = f.read()
                 file_name = f.name
 
             msg.add_attachment(file_data, maintype='application', subtype='octet-string', filename=file_name)
         with smtplib.SMTP_SSL('smtp.gmail.com', 465) as smtp:
             smtp.login(EXAMPLE_ADDRESS, EXAMPLE_PASSWORD)
-
             smtp.send_message(msg)
 
 
@@ -49,4 +51,4 @@ file = ['Sergeev_Nikita.pdf']
 
 Email = EmailSender()
 
-Email.pdf(EXAMPLE_ADDRESS, TEST_ADDRESS, file)
+Email.plain_text(letter)
